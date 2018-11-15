@@ -7,16 +7,15 @@ public class BlockScript : MonoBehaviour {
     public Color color1;
     public Color color2;
     public Color color3;
-    private Color currentColor;
+    public Color color4;
+    public Color color5;
+    public Color currentColor;
     public Color matchColor;
 
-    private SpriteRenderer sprite;
+    public SpriteRenderer sprite;
+    public GameObject image;
 
     public int colorIndex;
-
-    public bool isEdge;
-    public bool isCorner;
-    public bool isCenter;
 
     public GameObject nNeighbor;
     public GameObject sNeighbor;
@@ -26,19 +25,42 @@ public class BlockScript : MonoBehaviour {
     public GameObject resetter;
 
     public bool isMatched = false;
-    private bool needsColor = false;
-    private static bool waitForReset = false;
+    public bool needsColor = false;
+    public static bool waitForReset = false;
+    public static bool stillCounting = false;
 
-    private int newCount = 0;
+    public int newCount = 0;
     private int previousCount = 0;
 
-    private List<GameObject> matchBlocks = new List<GameObject>();
+    public List<GameObject> matchBlocks = new List<GameObject>();
+    public List<GameObject> blocks = new List<GameObject>();
+    public List<int> counts = new List<int>();
+
+    public Vector3 blockPos;
+    private Vector3 screenPoint;
+    private Vector3 offset;
+    private Rigidbody rb;
+    public float maxDrag = 1.5f;
+    public static bool isSwapping = false;
+    public bool isPicked = false;
+    public GameObject swapTarget = null;
+    public direction swapDirection;
+
+    public enum direction {Up, Down, Left, Right};
+    
 
     void Start () {
-        sprite = gameObject.GetComponent<SpriteRenderer>();
-        colorIndex = Random.Range(0, 3);
+        //sprite = gameObject.GetComponent<SpriteRenderer>();
+        colorIndex = Random.Range(0, 5);
+
+        foreach (GameObject block in GameObject.FindGameObjectsWithTag("Block"))
+            {
+            blocks.Add(block);
+            }
 
         SetNewColor();
+        blockPos = transform.position;
+        rb = gameObject.GetComponent<Rigidbody>();
 
         Vector3 down = new Vector3(0f, -1f);
         Vector3 left = new Vector3(-1f, 0f);
@@ -134,30 +156,6 @@ public class BlockScript : MonoBehaviour {
 	void Update () {
         sprite.color = currentColor;
 
-        //if (waitForFall == false)
-        //    {
-        //    MatchCheck();
-        //    }
-        //
-        //
-        //if (needsColor)
-        //    {
-        //    StartCoroutine (GetNewColor(gameObject));
-        //    needsColor = !needsColor;
-        //    }
-
-        if (waitForReset == false)
-        {
-            if (isMatched == false)
-            {
-                MatchFunction();
-            }
-            else
-            {
-                StartCoroutine(MatchColorChange());
-                waitForReset = true;
-            }
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -168,147 +166,39 @@ public class BlockScript : MonoBehaviour {
             {
                 GetNewColor(gameObject);
                 matchBlocks = new List<GameObject>();
+                counts = new List<int>();
                 isMatched = false;
             }
         }
-
     }
 
-    //public void MatchCheck()
-    //    {
-    //    if (isMatched == false)
-    //        {
-    //
-    //        if (nNeighbor != null)
-    //            {
-    //            if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                {
-    //                if (sNeighbor != null)
-    //                    {
-    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, nNeighbor, sNeighbor));
-    //                        }
-    //                    }
-    //                if (eNeighbor != null)
-    //                    {
-    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, nNeighbor, eNeighbor));
-    //                        }
-    //                    }
-    //                if (wNeighbor != null)
-    //                    {
-    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, nNeighbor, wNeighbor));
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        if (sNeighbor != null)
-    //            {
-    //            if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                {
-    //                if (nNeighbor != null)
-    //                    {
-    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, sNeighbor, nNeighbor));
-    //                        }
-    //                    }
-    //                if (eNeighbor != null)
-    //                    {
-    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, sNeighbor, eNeighbor));
-    //                        }
-    //                    }
-    //                if (wNeighbor != null)
-    //                    {
-    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, sNeighbor, wNeighbor));
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        if (eNeighbor != null)
-    //            {
-    //            if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                {
-    //                if (sNeighbor != null)
-    //                    {
-    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, eNeighbor, sNeighbor));
-    //                        }
-    //                    }
-    //                if (nNeighbor != null)
-    //                    {
-    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, eNeighbor, nNeighbor));
-    //                        }
-    //                    }
-    //                if (wNeighbor != null)
-    //                    {
-    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, eNeighbor, wNeighbor));
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        if (wNeighbor != null)
-    //            {
-    //            if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                {
-    //                if (sNeighbor != null)
-    //                    {
-    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, wNeighbor, sNeighbor));
-    //                        }
-    //                    }
-    //                if (eNeighbor != null)
-    //                    {
-    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, wNeighbor, eNeighbor));
-    //                        }
-    //                    }
-    //                if (nNeighbor != null)
-    //                    {
-    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-    //                        {
-    //                        StartCoroutine (Match(gameObject, wNeighbor, nNeighbor));
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //IEnumerator Match(GameObject block1, GameObject block2, GameObject block3)
-    //    {
-    //    waitForFall = true;
-    //    yield return new WaitForSeconds(1f);
-    //    block1.GetComponent<BlockScript>().currentColor = matchColor;
-    //    block2.GetComponent<BlockScript>().currentColor = matchColor;
-    //    block3.GetComponent<BlockScript>().currentColor = matchColor;
-    //
-    //    block1.GetComponent<BlockScript>().isMatched = true;
-    //    block2.GetComponent<BlockScript>().isMatched = true;
-    //    block3.GetComponent<BlockScript>().isMatched = true;
-    //
-    //    block1.GetComponent<BlockScript>().needsColor = true;
-    //    block2.GetComponent<BlockScript>().needsColor = true;
-    //    block3.GetComponent<BlockScript>().needsColor = true;
-    //    }
-    //
-    
-    
+    private void OnTriggerStay(Collider other)
+        {
+        if (other != null)
+            {
+            if (isPicked)
+                {
+                if (other.CompareTag("Block"))
+                    {
+                    SwapHover(other.GetComponent<BlockScript>().image);
+                    isSwapping = true;
+                    }
+                }
+            }
+        }
+
+    private void OnTriggerExit(Collider other)
+        {
+        if (other != null)
+            {
+            if (other.CompareTag("Block"))
+                {
+                isSwapping = false;
+                other.GetComponent<BlockScript>().image.transform.localPosition = new Vector3(0f, 0f);
+                }
+            }
+        }
+
     public void SetNewColor()
         {
         if (colorIndex == 0)
@@ -323,44 +213,36 @@ public class BlockScript : MonoBehaviour {
             {
             currentColor = color3;
             }
+        if (colorIndex == 3)
+            {
+            currentColor = color4;
+            }
+        if (colorIndex == 4)
+            {
+            currentColor = color5;
+            }
         needsColor = false;
         }
 
-    public void MatchFunction()
-    {
-        CheckNeighbors(gameObject);
-
-        foreach (GameObject block in matchBlocks)
+    public void CountCheck()
         {
-            CheckNeighbors(block);            
+        Debug.Log("Checking Count");
+        int highestCount;
+        foreach (GameObject block in blocks)
+            {
+            counts.Add(block.GetComponent<BlockScript>().newCount);
+            }
+        counts.Sort();
+        counts.Reverse();
+
+        highestCount = counts[0];
+        Debug.Log(highestCount.ToString());
+
+        if (highestCount == newCount)
+            {
+            stillCounting = false;
+            }
         }
-        newCount = matchBlocks.Count;
-
-        if (newCount > previousCount)
-        {
-            previousCount = newCount;
-            MatchFunction();
-        }
-        else if (newCount == previousCount && newCount >= 3)
-        {
-            isMatched = true;
-        }
-
-    }
-
-    IEnumerator MatchColorChange()
-    {
-        yield return new WaitForSeconds(.5f);
-
-        foreach (GameObject block in matchBlocks)
-        {
-            block.GetComponent<BlockScript>().currentColor = matchColor;
-            block.GetComponent<BlockScript>().needsColor = true;
-        }
-
-        yield return new WaitForSeconds(1);
-        resetter.SendMessage("ResetMatch");
-    }
 
     public bool CheckNeighbors(GameObject current)
     {
@@ -485,25 +367,19 @@ public class BlockScript : MonoBehaviour {
             if (current.GetComponent<BlockScript>().nNeighbor != null)
             {
                 GetNewColor(current.GetComponent<BlockScript>().nNeighbor);
-                Debug.Log("Checking north");
-                //yield break;
             }
             else
             {
-                //yield return new WaitForSeconds(.5f);
-                colorIndex = Random.Range(0, 3);
+                colorIndex = Random.Range(0, 5);
                 SetNewColor();
-                Debug.Log("Random");
             }
         }
         else if (current.GetComponent<BlockScript>().needsColor == false)
         {
-            //yield return new WaitForSeconds(.5f);
             colorIndex = current.GetComponent<BlockScript>().colorIndex;
             current.GetComponent<BlockScript>().needsColor = true;
             current.GetComponent<BlockScript>().currentColor = matchColor;
             SetNewColor();
-            Debug.Log("Setting");
         }
     }
 
@@ -512,5 +388,139 @@ public class BlockScript : MonoBehaviour {
         
         waitForReset = false;
     }
-}
+
+    public void OnMouseDown()
+        {
+        screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+        offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+        }
+
+    private void OnMouseDrag()
+        {
+        Vector3 newPos = new Vector3();
+        Vector3 cursorScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+        Vector3 cursorPos = Camera.main.ScreenToWorldPoint(cursorScreenPoint) + offset;
+
+        gameObject.tag = "PickedBlock";
+        isPicked = true;
+
+        float xOffset = cursorPos.x - blockPos.x;
+        float yOffset = cursorPos.y - blockPos.y;
+
+        if (Mathf.Abs(xOffset) < maxDrag && Mathf.Abs(yOffset) < maxDrag)
+            {
+            if (Mathf.Abs(xOffset) > Mathf.Abs(yOffset))
+                {
+                //rb.constraints = RigidbodyConstraints.FreezePositionY;
+                newPos = new Vector3(cursorPos.x, blockPos.y, blockPos.z);
+                }
+            else
+                {
+                //rb.constraints = RigidbodyConstraints.FreezePositionX;
+                newPos = new Vector3(blockPos.x, cursorPos.y, blockPos.z);
+                }
+            }
+        else
+            {
+            if (xOffset <= maxDrag * -1f)
+                {
+                newPos = new Vector3(blockPos.x - maxDrag, blockPos.y, blockPos.z);
+                }
+            else if (xOffset >= maxDrag)
+                {
+                newPos = new Vector3(blockPos.x + maxDrag, blockPos.y, blockPos.z);
+                }
+            else if (yOffset <= maxDrag * -1f)
+                {
+                newPos = new Vector3(blockPos.x, blockPos.y - maxDrag, blockPos.z);
+                }
+            else if (yOffset >= maxDrag)
+                {
+                newPos = new Vector3(blockPos.x, blockPos.y + maxDrag, blockPos.z);
+                }
+
+            }
+
+        if (Mathf.Abs(xOffset) > Mathf.Abs(yOffset) && xOffset > 0)
+            {
+            swapDirection = direction.Right;
+            }
+        else if (Mathf.Abs(xOffset) > Mathf.Abs(yOffset) && xOffset < 0)
+            {
+            swapDirection = direction.Left;
+            }
+        else if (Mathf.Abs(xOffset) < Mathf.Abs(yOffset) && yOffset > 0)
+            {
+            swapDirection = direction.Up;
+            }
+        else if (Mathf.Abs(xOffset) < Mathf.Abs(yOffset) && yOffset < 0)
+            {
+            swapDirection = direction.Down;
+            }
+
+        transform.position = newPos;
+        }
+
+    private void OnMouseUp()
+        {
+        transform.position = blockPos;
+
+        gameObject.tag = "Block";
+        isPicked = false;
+        swapTarget.transform.localPosition = new Vector3(0f, 0f, 0f);
+
+        if (isSwapping)
+            {
+            Swap(swapTarget);            
+            }
+
+        
+        }
+
+    public void SwapHover(GameObject other)
+        {
+        swapTarget = other;
+        //Vector3 relPos =  transform.InverseTransformVector(blockPos);
+
+        //float xOffset = transform.position.x - other.transform.parent.transform.position.x;
+        //float yOffset = transform.position.y - other.transform.parent.transform.position.y;
+
+        if (swapDirection == direction.Up)
+            {
+            other.transform.localPosition = new Vector3(0f, -0.138f);
+            }
+        else if (swapDirection == direction.Down)
+            {
+            other.transform.localPosition = new Vector3(0f, 0.138f);
+            }
+        else if (swapDirection == direction.Left)
+            {
+            other.transform.localPosition = new Vector3(0.138f, 0f);
+            }
+        else if (swapDirection == direction.Right)
+            {
+            other.transform.localPosition = new Vector3(-0.138f, 0f);
+            }
+        }
+
+    public void Swap(GameObject other)
+        {
+        int index = colorIndex;
+        int targetIndex = other.transform.parent.GetComponent<BlockScript>().colorIndex;
+        Debug.Log(index.ToString() + " and " + targetIndex.ToString());
+
+        colorIndex = targetIndex;
+        other.transform.parent.GetComponent<BlockScript>().colorIndex = index;
+        Debug.Log(other.transform.parent.GetComponent<BlockScript>().colorIndex.ToString() + " and " + colorIndex.ToString());
+
+        SetNewColor();
+        other.transform.parent.GetComponent<BlockScript>().SendMessage("SetNewColor");
+
+        swapTarget = null;
+        other.transform.parent.GetComponent<BlockScript>().swapTarget = null;
+        }
+
+    }
+
+
 

@@ -6,6 +6,7 @@ public class ResetterScript : MonoBehaviour {
 
     private bool resetting = false;
     public GameObject block;
+    public GameObject blockManager;
 
 	void Start () {
 		
@@ -34,7 +35,7 @@ public class ResetterScript : MonoBehaviour {
         {
             transform.position = new Vector3(0f, -3f);
             resetting = false;
-            block.GetComponent<BlockScript>().SendMessage("ResetMatch");
+            blockManager.GetComponent<MatchFinder>().SendMessage("ResetMatch");
         }
 
     }
