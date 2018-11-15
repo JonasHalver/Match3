@@ -23,9 +23,16 @@ public class BlockScript : MonoBehaviour {
     public GameObject eNeighbor;
     public GameObject wNeighbor;
 
+    public GameObject resetter;
+
     public bool isMatched = false;
     private bool needsColor = false;
-    private static bool waitForFall = false;
+    private static bool waitForReset = false;
+
+    private int newCount = 0;
+    private int previousCount = 0;
+
+    private List<GameObject> matchBlocks = new List<GameObject>();
 
     void Start () {
         sprite = gameObject.GetComponent<SpriteRenderer>();
@@ -127,179 +134,181 @@ public class BlockScript : MonoBehaviour {
 	void Update () {
         sprite.color = currentColor;
 
-        if (waitForFall == false)
-            {
-            MatchCheck();
-            }
-        
+        //if (waitForFall == false)
+        //    {
+        //    MatchCheck();
+        //    }
+        //
+        //
+        //if (needsColor)
+        //    {
+        //    StartCoroutine (GetNewColor(gameObject));
+        //    needsColor = !needsColor;
+        //    }
 
-        if (needsColor)
+        if (waitForReset == false)
+        {
+            if (isMatched == false)
             {
-            StartCoroutine (GetNewColor(gameObject));
-            needsColor = !needsColor;
+                MatchFunction();
             }
+            else
+            {
+                StartCoroutine(MatchColorChange());
+                waitForReset = true;
+            }
+        }
     }
 
-    public void MatchCheck()
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other != null)
         {
-        if (isMatched == false)
+            if (other = resetter.GetComponent<Collider>())
             {
-
-            if (nNeighbor != null)
-                {
-                if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                    {
-                    if (sNeighbor != null)
-                        {
-                        if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, nNeighbor, sNeighbor));
-                            }
-                        }
-                    if (eNeighbor != null)
-                        {
-                        if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, nNeighbor, eNeighbor));
-                            }
-                        }
-                    if (wNeighbor != null)
-                        {
-                        if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, nNeighbor, wNeighbor));
-                            }
-                        }
-                    }
-                }
-            if (sNeighbor != null)
-                {
-                if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                    {
-                    if (nNeighbor != null)
-                        {
-                        if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, sNeighbor, nNeighbor));
-                            }
-                        }
-                    if (eNeighbor != null)
-                        {
-                        if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, sNeighbor, eNeighbor));
-                            }
-                        }
-                    if (wNeighbor != null)
-                        {
-                        if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, sNeighbor, wNeighbor));
-                            }
-                        }
-                    }
-                }
-            if (eNeighbor != null)
-                {
-                if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                    {
-                    if (sNeighbor != null)
-                        {
-                        if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, eNeighbor, sNeighbor));
-                            }
-                        }
-                    if (nNeighbor != null)
-                        {
-                        if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, eNeighbor, nNeighbor));
-                            }
-                        }
-                    if (wNeighbor != null)
-                        {
-                        if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, eNeighbor, wNeighbor));
-                            }
-                        }
-                    }
-                }
-            if (wNeighbor != null)
-                {
-                if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                    {
-                    if (sNeighbor != null)
-                        {
-                        if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, wNeighbor, sNeighbor));
-                            }
-                        }
-                    if (eNeighbor != null)
-                        {
-                        if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, wNeighbor, eNeighbor));
-                            }
-                        }
-                    if (nNeighbor != null)
-                        {
-                        if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
-                            {
-                            StartCoroutine (Match(gameObject, wNeighbor, nNeighbor));
-                            }
-                        }
-                    }
-                }
+                GetNewColor(gameObject);
+                matchBlocks = new List<GameObject>();
+                isMatched = false;
             }
         }
 
-    IEnumerator Match(GameObject block1, GameObject block2, GameObject block3)
-        {
-        waitForFall = true;
-        yield return new WaitForSeconds(1f);
-        block1.GetComponent<BlockScript>().currentColor = matchColor;
-        block2.GetComponent<BlockScript>().currentColor = matchColor;
-        block3.GetComponent<BlockScript>().currentColor = matchColor;
+    }
 
-        block1.GetComponent<BlockScript>().isMatched = true;
-        block2.GetComponent<BlockScript>().isMatched = true;
-        block3.GetComponent<BlockScript>().isMatched = true;
-
-        block1.GetComponent<BlockScript>().needsColor = true;
-        block2.GetComponent<BlockScript>().needsColor = true;
-        block3.GetComponent<BlockScript>().needsColor = true;
-        }
-
-    IEnumerator GetNewColor(GameObject current)
-        {
-        if (current.GetComponent<BlockScript>().isMatched)
-            {
-            if (current.GetComponent<BlockScript>().nNeighbor != null)
-                {
-                StartCoroutine(GetNewColor(current.GetComponent<BlockScript>().nNeighbor));
-                Debug.Log("Checking north");
-                yield break;
-                }
-            else
-                {
-                yield return new WaitForSeconds(.5f);
-                colorIndex = Random.Range(0, 3);
-                SetNewColor();
-                Debug.Log("Random");
-                }
-            }
-        else if (current.GetComponent<BlockScript>().isMatched == false)
-            {
-            yield return new WaitForSeconds(.5f);
-            colorIndex = current.GetComponent<BlockScript>().colorIndex;
-            SetNewColor();
-            Debug.Log("Setting");
-            }
-        }
-
+    //public void MatchCheck()
+    //    {
+    //    if (isMatched == false)
+    //        {
+    //
+    //        if (nNeighbor != null)
+    //            {
+    //            if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                {
+    //                if (sNeighbor != null)
+    //                    {
+    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, nNeighbor, sNeighbor));
+    //                        }
+    //                    }
+    //                if (eNeighbor != null)
+    //                    {
+    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, nNeighbor, eNeighbor));
+    //                        }
+    //                    }
+    //                if (wNeighbor != null)
+    //                    {
+    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, nNeighbor, wNeighbor));
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        if (sNeighbor != null)
+    //            {
+    //            if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                {
+    //                if (nNeighbor != null)
+    //                    {
+    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, sNeighbor, nNeighbor));
+    //                        }
+    //                    }
+    //                if (eNeighbor != null)
+    //                    {
+    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, sNeighbor, eNeighbor));
+    //                        }
+    //                    }
+    //                if (wNeighbor != null)
+    //                    {
+    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, sNeighbor, wNeighbor));
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        if (eNeighbor != null)
+    //            {
+    //            if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                {
+    //                if (sNeighbor != null)
+    //                    {
+    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, eNeighbor, sNeighbor));
+    //                        }
+    //                    }
+    //                if (nNeighbor != null)
+    //                    {
+    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, eNeighbor, nNeighbor));
+    //                        }
+    //                    }
+    //                if (wNeighbor != null)
+    //                    {
+    //                    if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, eNeighbor, wNeighbor));
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        if (wNeighbor != null)
+    //            {
+    //            if (wNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                {
+    //                if (sNeighbor != null)
+    //                    {
+    //                    if (sNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, wNeighbor, sNeighbor));
+    //                        }
+    //                    }
+    //                if (eNeighbor != null)
+    //                    {
+    //                    if (eNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, wNeighbor, eNeighbor));
+    //                        }
+    //                    }
+    //                if (nNeighbor != null)
+    //                    {
+    //                    if (nNeighbor.GetComponent<BlockScript>().colorIndex == colorIndex)
+    //                        {
+    //                        StartCoroutine (Match(gameObject, wNeighbor, nNeighbor));
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //
+    //IEnumerator Match(GameObject block1, GameObject block2, GameObject block3)
+    //    {
+    //    waitForFall = true;
+    //    yield return new WaitForSeconds(1f);
+    //    block1.GetComponent<BlockScript>().currentColor = matchColor;
+    //    block2.GetComponent<BlockScript>().currentColor = matchColor;
+    //    block3.GetComponent<BlockScript>().currentColor = matchColor;
+    //
+    //    block1.GetComponent<BlockScript>().isMatched = true;
+    //    block2.GetComponent<BlockScript>().isMatched = true;
+    //    block3.GetComponent<BlockScript>().isMatched = true;
+    //
+    //    block1.GetComponent<BlockScript>().needsColor = true;
+    //    block2.GetComponent<BlockScript>().needsColor = true;
+    //    block3.GetComponent<BlockScript>().needsColor = true;
+    //    }
+    //
+    
+    
     public void SetNewColor()
         {
         if (colorIndex == 0)
@@ -314,8 +323,194 @@ public class BlockScript : MonoBehaviour {
             {
             currentColor = color3;
             }
-        isMatched = false;
-        waitForFall = false;
+        needsColor = false;
         }
+
+    public void MatchFunction()
+    {
+        CheckNeighbors(gameObject);
+
+        foreach (GameObject block in matchBlocks)
+        {
+            CheckNeighbors(block);            
+        }
+        newCount = matchBlocks.Count;
+
+        if (newCount > previousCount)
+        {
+            previousCount = newCount;
+            MatchFunction();
+        }
+        else if (newCount == previousCount && newCount >= 3)
+        {
+            isMatched = true;
+        }
+
+    }
+
+    IEnumerator MatchColorChange()
+    {
+        yield return new WaitForSeconds(.5f);
+
+        foreach (GameObject block in matchBlocks)
+        {
+            block.GetComponent<BlockScript>().currentColor = matchColor;
+            block.GetComponent<BlockScript>().needsColor = true;
+        }
+
+        yield return new WaitForSeconds(1);
+        resetter.SendMessage("ResetMatch");
+    }
+
+    public bool CheckNeighbors(GameObject current)
+    {
+        bool nDeadEnd = false;
+        bool sDeadEnd = false;
+        bool eDeadEnd = false;
+        bool wDeadEnd = false;
+
+        GameObject n = current.GetComponent<BlockScript>().nNeighbor;
+        GameObject s = current.GetComponent<BlockScript>().sNeighbor;
+        GameObject e = current.GetComponent<BlockScript>().eNeighbor;
+        GameObject w = current.GetComponent<BlockScript>().wNeighbor;
+
+        if (n != null)
+        {
+            if (n.GetComponent<BlockScript>().colorIndex == colorIndex)
+            {
+                if (matchBlocks.Contains(n) == false)
+                {
+                    matchBlocks.Add(n);
+                }
+                else
+                {
+                    nDeadEnd = true;
+                }
+            }
+            else
+            {
+                nDeadEnd = true;
+            }
+        }
+        else
+        {
+            nDeadEnd = true;
+        }
+
+        if (s != null)
+        {
+            if (s.GetComponent<BlockScript>().colorIndex == colorIndex)
+            {
+                if (matchBlocks.Contains(s) == false)
+                {
+                    matchBlocks.Add(s);
+                }
+                else
+                {
+                    sDeadEnd = true;
+                }
+            }
+
+            else
+            {
+                sDeadEnd = true;
+            }
+        }
+        else
+        {
+            sDeadEnd = true;
+        }
+
+
+        if (e != null)
+        {
+            if (e.GetComponent<BlockScript>().colorIndex == colorIndex)
+            {
+                if (matchBlocks.Contains(e) == false)
+                {
+                    matchBlocks.Add(e);
+                }
+                else
+                {
+                    eDeadEnd = true;
+                }
+            }
+            else
+            {
+                eDeadEnd = true;
+            }
+        }
+        else
+        {
+            eDeadEnd = true;
+        }
+
+        if (w != null)
+        {
+            if (w.GetComponent<BlockScript>().colorIndex == colorIndex)
+            {
+                if (matchBlocks.Contains(w) == false)
+                {
+                    matchBlocks.Add(w);
+                }
+                else
+                {
+                    wDeadEnd = true;
+                }
+            }
+            else
+            {
+                wDeadEnd = true;
+            }
+        }
+        else
+        {
+            wDeadEnd = true;
+        }
+
+        if (nDeadEnd && sDeadEnd && eDeadEnd && wDeadEnd)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void GetNewColor(GameObject current)
+    {
+        if (current.GetComponent<BlockScript>().needsColor)
+        {
+            if (current.GetComponent<BlockScript>().nNeighbor != null)
+            {
+                GetNewColor(current.GetComponent<BlockScript>().nNeighbor);
+                Debug.Log("Checking north");
+                //yield break;
+            }
+            else
+            {
+                //yield return new WaitForSeconds(.5f);
+                colorIndex = Random.Range(0, 3);
+                SetNewColor();
+                Debug.Log("Random");
+            }
+        }
+        else if (current.GetComponent<BlockScript>().needsColor == false)
+        {
+            //yield return new WaitForSeconds(.5f);
+            colorIndex = current.GetComponent<BlockScript>().colorIndex;
+            current.GetComponent<BlockScript>().needsColor = true;
+            current.GetComponent<BlockScript>().currentColor = matchColor;
+            SetNewColor();
+            Debug.Log("Setting");
+        }
+    }
+
+    public void ResetMatch()
+    {
+        
+        waitForReset = false;
+    }
 }
 
