@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class BlockScript : MonoBehaviour {
 
-    public Color color1;
-    public Color color2;
-    public Color color3;
-    public Color color4;
-    public Color color5;
-    public Color currentColor;
-    public Color matchColor;
+    public Sprite color1;
+    public Sprite color2;
+    public Sprite color3;
+    public Sprite color4;
+    public Sprite color5;
+    public Sprite currentColor;
+    public Sprite matchColor;
 
     public SpriteRenderer sprite;
     public GameObject image;
@@ -154,7 +154,7 @@ public class BlockScript : MonoBehaviour {
 	
 	
 	void Update () {
-        sprite.color = currentColor;
+        sprite.sprite = currentColor;
 
     }
 
