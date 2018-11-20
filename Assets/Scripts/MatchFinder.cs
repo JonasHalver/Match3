@@ -10,14 +10,21 @@ public class MatchFinder : MonoBehaviour {
     private int count = 0;
 
     public GameObject resetter;
+    public Transform sceneParent;
 
     public bool matched = false;
     public bool isChanging = false;
 
+    public ParticleSystem matchSign;
+
 	void Start () {
-        foreach (GameObject block in GameObject.FindGameObjectsWithTag("Block"))
+        sceneParent = transform.parent;
+        foreach (Transform block in sceneParent)
             {
-            blocks.Add(block);
+            if (block.tag == "Block")
+            {
+                blocks.Add(block.gameObject);
+            }
             }
 	}
 	
@@ -193,7 +200,7 @@ public class MatchFinder : MonoBehaviour {
             block.GetComponent<BlockScript>().needsColor = true;
             block.GetComponent<BlockScript>().poof.Play();
             }
-
+        StartCoroutine(MatchSign());
         yield return new WaitForSeconds(1);
         resetter.SendMessage("ResetMatch");
         }
@@ -204,5 +211,23 @@ public class MatchFinder : MonoBehaviour {
         isChanging = false;
         matchBlocks = new List<GameObject>();
         }
+
+    IEnumerator MatchSign()
+    {
+        //List<int> indeces = new List<int>();
+        //
+        //foreach (GameObject block in matchBlocks)
+        //{
+        //    int index = block.GetComponent<BlockScript>().colorIndex;
+        //
+        //    if (indeces.Contains(index) == false)
+        //    {
+        //        indeces.Add(index);
+        //    }
+        //}
+
+        matchSign.Play();
+        yield return new WaitForSeconds(1);
+    }
 
     }
