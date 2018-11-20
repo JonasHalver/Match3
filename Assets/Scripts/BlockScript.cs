@@ -9,13 +9,25 @@ public class BlockScript : MonoBehaviour {
     public Sprite color3;
     public Sprite color4;
     public Sprite color5;
+    public Sprite color6;
+    public Sprite color7;
+    public Sprite color8;
+    public Sprite color9;
+    public Sprite color10;
+    public Sprite color11;
+    public Sprite color12;
+    public Sprite color13;
     public Sprite currentColor;
     public Sprite matchColor;
+
+    public ParticleSystem poof;
 
     public SpriteRenderer sprite;
     public GameObject image;
 
     public int colorIndex;
+    public int uniqueBlocks = 5;
+    public int startBlock = 0;
 
     public GameObject nNeighbor;
     public GameObject sNeighbor;
@@ -51,7 +63,7 @@ public class BlockScript : MonoBehaviour {
 
     void Start () {
         //sprite = gameObject.GetComponent<SpriteRenderer>();
-        colorIndex = Random.Range(0, 5);
+        colorIndex = Random.Range(startBlock, startBlock + uniqueBlocks);
 
         foreach (GameObject block in GameObject.FindGameObjectsWithTag("Block"))
             {
@@ -370,7 +382,7 @@ public class BlockScript : MonoBehaviour {
             }
             else
             {
-                colorIndex = Random.Range(0, 5);
+                colorIndex = Random.Range(startBlock, startBlock + uniqueBlocks);
                 SetNewColor();
             }
         }
@@ -379,6 +391,8 @@ public class BlockScript : MonoBehaviour {
             colorIndex = current.GetComponent<BlockScript>().colorIndex;
             current.GetComponent<BlockScript>().needsColor = true;
             current.GetComponent<BlockScript>().currentColor = matchColor;
+            //poof.Play();
+
             SetNewColor();
         }
     }
@@ -387,6 +401,7 @@ public class BlockScript : MonoBehaviour {
     {
         
         waitForReset = false;
+        poof.Stop();
     }
 
     public void OnMouseDown()

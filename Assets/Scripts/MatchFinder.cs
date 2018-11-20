@@ -191,6 +191,7 @@ public class MatchFinder : MonoBehaviour {
             {
             block.GetComponent<BlockScript>().currentColor = block.GetComponent<BlockScript>().matchColor;
             block.GetComponent<BlockScript>().needsColor = true;
+            block.GetComponent<BlockScript>().poof.Play();
             }
 
         yield return new WaitForSeconds(1);
